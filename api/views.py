@@ -1,3 +1,5 @@
+from rest_framework.permissions import AllowAny, IsAuthenticated, IsAdminUser
+from .permissions import IsAutherOrStaff
 from restaurants.models import Restaurant
 from rest_framework.generics import (
     ListAPIView,
@@ -16,6 +18,8 @@ class RestaurantListView(ListAPIView):
     queryset = Restaurant.objects.all()
     serializer_class = RestaurantListSerializer
 
+    permission_classes = [AllowAny,]
+
 
 class RestaurantDetailView(RetrieveAPIView):
     queryset = Restaurant.objects.all()
@@ -23,9 +27,13 @@ class RestaurantDetailView(RetrieveAPIView):
     lookup_field = 'id'
     lookup_url_kwarg = 'restaurant_id'
 
+    permission_classes = [AllowAny,]
+
 
 class RestaurantCreateView(CreateAPIView):
     serializer_class = RestaurantCreateUpdateSerializer
+
+    permission_classes = [IsAuthenticated,]
 
     def perform_create(self, serializer):
         serializer.save(owner=self.request.user)
@@ -36,9 +44,13 @@ class RestaurantUpdateView(RetrieveUpdateAPIView):
     lookup_field = 'id'
     lookup_url_kwarg = 'restaurant_id'
 
+    permission_classes = [IsAutherOrStaff]
+
 
 class RestaurantDeleteView(DestroyAPIView):
     queryset = Restaurant.objects.all()
     serializer_class = RestaurantListSerializer
     lookup_field = 'id'
     lookup_url_kwarg = 'restaurant_id'
+
+    permission_classes = [IsAdminUser, ]
